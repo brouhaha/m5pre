@@ -18,12 +18,15 @@
 
 # This file is based on the SimpleCalc.py for pyparsing
 
+import sys
 
 from pyparsing import Combine, Forward, Literal, OneOrMore, Optional, \
     ParseException, ParserElement, ParseResults, StringEnd, Word, \
     ZeroOrMore, \
     infixNotation, oneOf, \
     alphas, alphanums, hexnums, nums, opAssoc
+
+assert sys.version_info >= (3, 6, 0)
 
 
 class M5Expression:
