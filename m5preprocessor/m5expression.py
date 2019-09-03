@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Expression parser
+# simple expression parser and evaluator
 # Copyright 2016, 2019 Eric Smith <spacewar@gmail.com>
 # SPDX-License-Identifier: GPL-3.0
 
@@ -26,7 +26,7 @@ from pyparsing import Combine, Forward, Literal, OneOrMore, Optional, \
     alphas, alphanums, hexnums, nums, opAssoc
 
 
-class ExpressionParser:
+class M5Expression:
 
     class UndefinedSymbol(Exception):
         def __init__(self, s):
@@ -53,7 +53,7 @@ class ExpressionParser:
 
         def eval(self, symtab):
             if self.identifier not in symtab:
-                raise ExpressionParser.UndefinedSymbol(self.identifier)
+                raise M5Expression.UndefinedSymbol(self.identifier)
             return symtab[self.identifier]
 
         def __str__(self):
@@ -72,7 +72,7 @@ class ExpressionParser:
             self.op1 = op1
 
         def eval(self, symtab):
-            if isinstance(self.op1, ExpressionParser.RPNItem):
+            if isinstance(self.op1, M5Expression.RPNItem):
                 op1 = self.op1.eval(symtab)
             else:
                 op1 = self.op1
@@ -100,11 +100,11 @@ class ExpressionParser:
             self.op2 = op2
 
         def eval(self, symtab):
-            if isinstance(self.op1, ExpressionParser.RPNItem):
+            if isinstance(self.op1, M5Expression.RPNItem):
                 op1 = self.op1.eval(symtab)
             else:
                 op1 = self.op1
-            if isinstance(self.op2, ExpressionParser.RPNItem):
+            if isinstance(self.op2, M5Expression.RPNItem):
                 op2 = self.op2.eval(symtab)
             else:
                 op2 = self.op2
@@ -134,17 +134,17 @@ class ExpressionParser:
     @staticmethod
     def infix_to_tree(pe):
         if isinstance(pe, int):
-            return ExpressionParser.RPNInteger(pe)
+            return M5Expression.RPNInteger(pe)
         if isinstance(pe, str):
-            return ExpressionParser.RPNIdentifier(pe)
+            return M5Expression.RPNIdentifier(pe)
         assert isinstance(pe, ParseResults)
         assert 2 <= len(pe) <= 3
         if len(pe) == 2:
-            return ExpressionParser.UnaryOp(pe[0],
-                                            ExpressionParser.infix_to_tree(pe[1]))
-        return ExpressionParser.BinaryOp(pe[1], 
-                                         ExpressionParser.infix_to_tree(pe[0]),
-                                         ExpressionParser.infix_to_tree(pe[2]))
+            return M5Expression.UnaryOp(pe[0],
+                                            M5Expression.infix_to_tree(pe[1]))
+        return M5Expression.BinaryOp(pe[1], 
+                                         M5Expression.infix_to_tree(pe[0]),
+                                         M5Expression.infix_to_tree(pe[2]))
         
     def __init__(self):
         ParserElement.enablePackrat()
@@ -192,7 +192,7 @@ class ExpressionParser:
 
 
 if __name__ == '__main__':
-    ep = ExpressionParser()
+    ep = M5Expression()
 
     symtab = { 'a': 3,
                'b': 5 }

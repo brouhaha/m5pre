@@ -22,7 +22,7 @@ import re
 import sys
 from typing import Dict, List, TextIO, Union
 
-from expressionparser import ExpressionParser
+from m5expression import M5Expression
 
 assert sys.version_info >= (3, 6, 0)
 
@@ -85,7 +85,7 @@ class MacroDefinition:
 
 class M5Preprocessor(io.TextIOBase):
     _f: TextIO
-    _ep: ExpressionParser
+    _ep: M5Expression
     _lno: int
     _f_at_eof: bool
     _buffer: List[str]
@@ -98,7 +98,7 @@ class M5Preprocessor(io.TextIOBase):
             raise ValueError('original file is closed')
         self._f = [f]
         self._debug = debug
-        self._ep = ExpressionParser()
+        self._ep = M5Expression()
         self._lno = 0
         self._f_at_eof = False
         self._buffer = []
@@ -151,7 +151,7 @@ class M5Preprocessor(io.TextIOBase):
     def _expression_parse(self, s):
         try:
             return self._ep.eval(s)
-        except ExpressionParser.UndefinedSymbol as e:
+        except M5Expression.UndefinedSymbol as e:
             raise M5PreprocessorError(self._lno, str(e))
       
 
