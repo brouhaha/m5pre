@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Eric Smith <spacewar@gmail.com>'
 
 __all__ = ['__version__', '__author__',
@@ -93,7 +93,7 @@ class _MacroDefinition:
 
 class M5Pre(io.TextIOBase):
     _f: TextIO
-    _ep: M5Expression
+    _ep: M5Expr
     _lno: int
     _f_at_eof: bool
     _buffer: List[str]
@@ -106,7 +106,7 @@ class M5Pre(io.TextIOBase):
             raise ValueError('original file is closed')
         self._f = [f]
         self._debug = debug
-        self._ep = M5Expression()
+        self._ep = M5Expr()
         self._lno = 0
         self._f_at_eof = False
         self._buffer = []
@@ -159,7 +159,7 @@ class M5Pre(io.TextIOBase):
     def _expression_parse(self, s):
         try:
             return self._ep.eval(s)
-        except M5Expression.UndefinedSymbol as e:
+        except M5Expr.UndefinedSymbol as e:
             raise M5PreError(self._lno, str(e))
       
 
