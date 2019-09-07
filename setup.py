@@ -1,13 +1,20 @@
+import re
 import setuptools
-
-from m5pre import __version__
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
+with open('m5pre.py', 'r') as fv:
+    for l in fv:
+        m = re.search("__version__[\s]*=[\s]*'(?P<version>[0-9]+(\.[0-9]+)+)'", l)
+        if m is not None:
+            version = m.group('version')
+            break
+
+
 setuptools.setup(
     name = 'm5pre',
-    version = __version__,
+    version = version,
     author = 'Eric Smith',
     author_email = 'spacewar@gmail.com',
     description = 'A simple macro preprocessor',
