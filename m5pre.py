@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 __author__ = 'Eric Smith <spacewar@gmail.com>'
 
 __all__ = ['__version__', '__author__',
@@ -335,9 +335,10 @@ class M5Pre(io.TextIOBase):
         return l
 
 
-    def _get_line(self):
+    def _get_one_input_line(self):
         # unlike readline(), returns None for end of file
         # does not include newline in return value
+        # does not handle continuation lines
         while True:
             if self._f_at_eof:
                 self._f.pop().close()
@@ -357,14 +358,29 @@ class M5Pre(io.TextIOBase):
             self._buffer.append(l);
         l = self._buffer.pop(0)
         self._lno += 1
-        l = self._process_line(l)
         return l
+
+    def _get_input_line(self):
+        # unlike readline(), returns None for end of file
+        # does not include newline in return value
+        # handles continuation lines
+        l = ''
+        while True:
+            l1 = self._get_one_input_line()
+            if l1 is None:
+                if len(l):
+                    raise M5PreError(self._lno, 'EOF in continuation line')
+                return None
+            l += l1
+            if not l.endswith('\\'):  # continuation character?
+                return self._process_line(l)   #   no, done
+            l = l[:-1]                #   yes, drop continuation char and keep reading
 
 
     def readline(self):
         if self.closed:
             raise ValueError('closed')
-        l = self._get_line()
+        l = self._get_input_line()
         if l is None:
             return ''
         return l + '\n'
@@ -384,7 +400,7 @@ import argparse
 import sys
 
 def main():
-    parser = argparse.ArgumentParser(description = 'preprocessor test')
+    parser = argparse.ArgumentParser(description = 'M5 preprocessor')
     parser.add_argument('input',
                         type = argparse.FileType('r'),
                         nargs = '?',
